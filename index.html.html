@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PulseFit — Studio d'entraînement & Nutrition</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Liaison du manifeste PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-wrapper">
+    <!-- En-tête -->
+    <header class="app-header">
+      <div class="brand" id="logo">
+        <span class="brand-badge">PRO</span>
+        <span class="brand-text">PulseFit</span>
+      </div>
+      <div class="header-controls">
+        <button id="btn-toggle-sound" class="icon-toggle-btn" title="Activer / Couper les bruitages">🔊</button>
+        <button id="btn-open-settings" class="icon-toggle-btn settings-hamburger-btn" title="Paramètres">☰</button>
+        <div class="header-status">
+          <span class="status-dot"></span>
+          <span class="status-text">Prêt à l'effort</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="app-main">
+      <!-- ÉCRAN 1 : Accueil -->
+      <section id="home-screen" class="screen">
+        <div class="hero-card">
+          <div class="hero-content">
+            <span class="hero-tag">Entraînement & Nutrition</span>
+            <h2>Dépasse tes limites aujourd'hui.</h2>
+            <p>Programmes complets, entraîneur guidé en direct et suivi précis de tes repas et calories restantes.</p>
+          </div>
+          <button id="btn-open-quiz" class="hero-cta">
+            <span>Trouver mon programme (QCM)</span>
+            <span class="cta-arrow">→</span>
+          </button>
+        </div>
+
+        <!-- Graphique des 7 derniers jours -->
+        <div class="modern-card chart-card">
+          <div class="section-title">
+            <h3>Activité sur 7 jours</h3>
+            <span class="subtitle">Clique sur un jour pour voir le détail</span>
+          </div>
+          <div class="weekly-chart" id="weekly-chart-bars"></div>
+          
+          <!-- Encadré des détails journaliers -->
+          <div id="day-detail-box" class="day-detail-box hidden" style="margin-top: 16px; background: var(--bg-core); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px; text-align: center;">
+            <span id="day-detail-title" style="font-size: 13px; font-weight: 700; color: var(--brand-cyan); display: block; margin-bottom: 4px;">Sélectionne un jour</span>
+            <span id="day-detail-content" style="font-size: 12px; color: var(--text-secondary);">Bilan de la journée s'affichera ici.</span>
+          </div>
+        </div>
+
+        <div class="section-title">
+          <h3>Espaces de l'application</h3>
+          <span class="subtitle">Sélectionne un module</span>
+        </div>
+
+        <div class="hub-grid">
+          <button id="btn-open-tracker" class="hub-card tracker-card-highlight">
+            <div class="hub-icon-wrapper bg-emerald">🍽️</div>
+            <div class="hub-text">
+              <h4>Journal & Calories restantes</h4>
+              <p>Macros détaillées, favoris et solde journalier</p>
+            </div>
+            <span class="hub-chevron">›</span>
+          </button>
+
+          <button id="btn-open-history" class="hub-card">
+            <div class="hub-icon-wrapper bg-purple">📜</div>
+            <div class="hub-text">
+              <h4>Historique des séances</h4>
+              <p>Consulte tes entraînements passés et ta régularité</p>
+            </div>
+            <span class="hub-chevron">›</span>
+          </button>
+
+          <button id="btn-open-catalog" class="hub-card">
+            <div class="hub-icon-wrapper bg-blue">📋</div>
+            <div class="hub-text">
+              <h4>Catalogue complet</h4>
+              <p><span id="home-catalog-count">0</span> séances (Salle, Street, Maison)</p>
+            </div>
+            <span class="hub-chevron">›</span>
+          </button>
+
+          <button id="btn-open-custom" class="hub-card">
+            <div class="hub-icon-wrapper bg-purple">⚡</div>
+            <div class="hub-text">
+              <h4>Séance sur mesure</h4>
+              <p>Construis ta routine exercice par exercice</p>
+            </div>
+            <span class="hub-chevron">›</span>
+          </button>
+
+          <button id="btn-open-nutrition" class="hub-card">
+            <div class="hub-icon-wrapper bg-emerald">🥗</div>
+            <div class="hub-text">
+              <h4>Bilan métabolique BMR</h4>
+              <p>Calcule ton objectif calorique quotidien</p>
+            </div>
+            <span class="hub-chevron">›</span>
+          </button>
+
+          <!-- Bouton : Hydratation -->
+          <button id="btn-open-water" class="hub-card">
+            <div class="hub-icon-wrapper bg-blue">💧</div>
+            <div class="hub-text">
+              <h4>Suivi d'Hydratation</h4>
+              <p>Gère ta consommation d'eau quotidienne</p>
+            </div>
+            <span class="hub-chevron">›</span>
+          </button>
+
+          <!-- Bouton FUSIONNÉ : Poids & Records (PRs) -->
+          <button id="btn-open-evolution" class="hub-card">
+            <div class="hub-icon-wrapper bg-purple">⚖️</div>
+            <div class="hub-text">
+              <h4>Évolution & Records (PRs)</h4>
+              <p>Suivi de ton poids corporel et de tes charges max</p>
+            </div>
+            <span class="hub-chevron">›</span>
+          </button>
+
+          <!-- Bouton : Défi du Jour -->
+          <button id="btn-open-challenge" class="hub-card">
+            <div class="hub-icon-wrapper bg-amber">🎯</div>
+            <div class="hub-text">
+              <h4>Défi du Jour</h4>
+              <p>Relève le challenge quotidien de remise en forme</p>
+            </div>
+            <span class="hub-chevron">›</span>
+          </button>
+
+          <button id="btn-open-music-hub" class="hub-card">
+            <div class="hub-icon-wrapper bg-amber">🎵</div>
+            <div class="hub-text">
+              <h4>Lecteur audio & Playlist</h4>
+              <p>Morceaux libres de droits (Phonk, House, Ambiance)</p>
+            </div>
+            <span class="hub-chevron">›</span>
+          </button>
+        </div>
+
+        <!-- Succès & Trophées -->
+        <div class="modern-card badges-card" style="margin-top: 24px;">
+          <div class="section-title">
+            <h3>Succès & Trophées</h3>
+            <span class="subtitle">Progression globale</span>
+          </div>
+          <div class="badges-grid" id="badges-container"></div>
+        </div>
+      </section>
+
+      <!-- ÉCRAN : Paramètres -->
+      <section id="settings-screen" class="screen hidden">
+        <div class="screen-top-bar">
+          <button class="back-home-btn">← Accueil</button>
+          <span class="view-indicator">Paramètres</span>
+        </div>
+
+        <div class="modern-card">
+          <div class="screen-heading">
+            <h2>Personnalisation & Audio</h2>
+            <p>Règle tes thèmes visuels et tes niveaux sonores.</p>
+          </div>
+
+          <div class="form-stack">
+            <div class="field-box">
+              <label>Thème d'arrière-plan (3 par ligne)</label>
+              <div class="theme-selector-grid">
+                <button class="theme-btn active" data-theme="dark-pro">Dark Pro</button>
+                <button class="theme-btn" data-theme="ocean-blue">Bleu Nuit</button>
+                <button class="theme-btn" data-theme="cyber-purple">Violet Néon</button>
+                <button class="theme-btn" data-theme="emerald-fit">Émeraude</button>
+                <button class="theme-btn" data-theme="graphite-gray">Gris Graphite</button>
+                <button class="theme-btn" data-theme="light-clean">Mode Clair</button>
+              </div>
+            </div>
+
+            <div class="field-box">
+              <label for="settings-vol-music">Volume Musique</label>
+              <div class="volume-slider-row">
+                <span class="vol-icon">🔈</span>
+                <input type="range" id="settings-vol-music" min="0" max="1" step="0.05" value="0.7" class="custom-range vol-range">
+                <span class="vol-icon">🔊</span>
+              </div>
+            </div>
+
+            <div class="field-box">
+              <label for="settings-vol-vfx">Volume VFX / Bruitages</label>
+              <div class="volume-slider-row">
+                <span class="vol-icon">🔇</span>
+                <input type="range" id="settings-vol-vfx" min="0" max="1" step="0.05" value="0.5" class="custom-range vol-range">
+                <span class="vol-icon">🔊</span>
+              </div>
+            </div>
+
+            <button id="btn-open-music-from-settings" class="btn-secondary" style="margin-top: 10px;">🎵 Ouvrir le lecteur audio</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ÉCRAN : Historique des séances -->
+      <section id="history-screen" class="screen hidden">
+        <div class="screen-top-bar">
+          <button class="back-home-btn">← Accueil</button>
+          <span class="view-indicator">Séances terminées</span>
+        </div>
+        <div class="modern-card">
+          <div class="screen-heading">
+            <h2>Historique d'entraînement</h2>
+            <p>Retrouve le volume d'effort accompli au fil du temps.</p>
+          </div>
+          <ul id="workout-history-list" class="styled-item-list"></ul>
+        </div>
+      </section>
+
+      <!-- ÉCRAN : Suivi Journal Alimentaire -->
+      <section id="tracker-screen" class="screen hidden">
+        <div class="screen-top-bar">
+          <button class="back-home-btn">← Accueil</button>
+          <span class="view-indicator">Journal du jour</span>
+        </div>
+
+        <div class="modern-card tracker-summary-card">
+          <div class="tracker-equation-row">
+            <div class="tracker-stat-box">
+              <span class="stat-label">Objectif</span>
+              <span id="tracker-goal-display" class="stat-val">2200</span>
+            </div>
+            <span class="math-operator">-</span>
+            <div class="tracker-stat-box">
+              <span class="stat-label">Nourriture</span>
+              <span id="tracker-eaten-display" class="stat-val">0</span>
+            </div>
+            <span class="math-operator">+</span>
+            <div class="tracker-stat-box">
+              <span class="stat-label">Séances</span>
+              <span id="tracker-burned-display" class="stat-val">0</span>
+            </div>
+          </div>
+
+          <div class="tracker-remaining-box">
+            <span class="remaining-label">Calories Restantes</span>
+            <div class="remaining-digits">
+              <span id="tracker-remaining-display">2200</span>
+              <span class="remaining-unit">kcal</span>
+            </div>
+            <div class="budget-bar-track">
+              <div id="tracker-progress-fill" class="budget-bar-fill"></div>
+            </div>
+          </div>
+
+          <div class="macros-breakdown-box">
+            <div class="macro-item">
+              <div class="macro-labels"><span>Protéines</span><span><b id="macro-prot-val">0</b>g</span></div>
+              <div class="macro-bar-track"><div id="macro-prot-fill" class="macro-bar-fill prot"></div></div>
+            </div>
+            <div class="macro-item">
+              <div class="macro-labels"><span>Glucides</span><span><b id="macro-gluc-val">0</b>g</span></div>
+              <div class="macro-bar-track"><div id="macro-gluc-fill" class="macro-bar-fill gluc"></div></div>
+            </div>
+            <div class="macro-item">
+              <div class="macro-labels"><span>Lipides</span><span><b id="macro-lip-val">0</b>g</span></div>
+              <div class="macro-bar-track"><div id="macro-lip-fill" class="macro-bar-fill lip"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modern-card">
+          <div class="screen-heading" style="margin-bottom: 10px;">
+            <h2>Mes Aliments Favoris</h2>
+            <p>Ajoute tes aliments récurrents en 1 clic.</p>
+          </div>
+          <div id="favorites-list-container" class="favorites-chips-stack"></div>
+        </div>
+
+        <div class="modern-card">
+          <div class="screen-heading" style="margin-bottom: 12px;">
+            <h2>Ajouter un aliment</h2>
+            <p>Tape un nom (ex. : Pomme, Riz, Pizza...)</p>
+          </div>
+
+          <div class="search-food-box">
+            <input type="text" id="food-search-input" placeholder="Rechercher un aliment..." autocomplete="off">
+            <div id="food-search-results" class="food-search-dropdown hidden"></div>
+          </div>
+
+          <div id="food-portion-panel" class="portion-panel hidden">
+            <div class="selected-food-meta">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h4 id="portion-food-name">Aliment sélectionné</h4>
+                <button id="btn-toggle-fav" class="fav-icon-btn" title="Ajouter aux favoris">⭐</button>
+              </div>
+              <span id="portion-food-macros" class="macros-tag">Portion</span>
+            </div>
+            <div class="portion-input-row">
+              <input type="number" id="portion-qty-input" value="100" min="1" max="2000" step="1">
+              <span id="portion-unit-label">grammes</span>
+              <button id="btn-add-food-log" class="action-add-btn">Ajouter</button>
+            </div>
+          </div>
+
+          <div class="logged-meals-section">
+            <div class="meals-header">
+              <h4>Repas enregistrés (<span id="logged-items-count">0</span>)</h4>
+              <button id="btn-clear-food-log" class="link-clear-btn">Réinitialiser</button>
+            </div>
+            <ul id="logged-food-list" class="styled-item-list"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ÉCRAN DÉDIÉ : Hydratation -->
+      <section id="water-screen" class="screen hidden">
+        <div class="screen-top-bar">
+          <button class="back-home-btn">← Accueil</button>
+          <span class="view-indicator">Hydratation</span>
+        </div>
+        <div class="modern-card">
+          <div class="screen-heading">
+            <h2>💧 Suivi d'Hydratation</h2>
+            <p>Objectif recommandé : 2500 ml par jour</p>
+          </div>
+          <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px;">
+            <span style="font-size: 32px; font-weight: 800; color: var(--brand-cyan);"><b id="water-intake-display">0</b> ml</span>
+            <span style="font-size: 13px; color: var(--text-tertiary);">Objectif : 2500 ml</span>
+          </div>
+          <div class="budget-bar-track" style="margin-bottom: 20px; height: 10px;">
+            <div id="water-progress-fill" class="budget-bar-fill" style="background: var(--brand-cyan);"></div>
+          </div>
+          <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <button onclick="addWater(250)" class="btn-secondary">+ 250 ml</button>
+            <button onclick="addWater(500)" class="btn-secondary">+ 500 ml</button>
+            <button onclick="resetWater()" class="btn-secondary" style="color: var(--brand-rose); border-color: rgba(244,63,94,0.3);">Reset</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ÉCRAN FUSIONNÉ : Évolution & Records (Poids + PRs) -->
+      <section id="evolution-screen" class="screen hidden">
+        <div class="screen-top-bar">
+          <button class="back-home-btn">← Accueil</button>
+          <span class="view-indicator">Évolution & Records</span>
+        </div>
+        
+        <!-- Bloc Poids -->
+        <div class="modern-card" style="margin-bottom: 16px;">
+          <div class="screen-heading">
+            <h2>⚖️ Carnet de Poids</h2>
+            <p>Suivi et historique de ton poids corporel.</p>
+          </div>
+          <div class="portion-input-row" style="margin-bottom: 14px;">
+            <input type="number" id="weight-input-box" placeholder="Ex: 75.5" step="0.1" min="30" max="300">
+            <button onclick="logUserWeight(document.getElementById('weight-input-box').value)" class="action-add-btn">Enregistrer</button>
+          </div>
+          <ul id="weight-history-list" class="styled-item-list" style="max-height: 120px; overflow-y: auto;"></ul>
+        </div>
+
+        <!-- Bloc Records de Force (PRs) -->
+        <div class="modern-card">
+          <div class="screen-heading">
+            <h2>📊 Records de Force (PRs)</h2>
+            <p>Tes charges maximales par exercice.</p>
+          </div>
+          <div class="form-stack" style="margin-bottom: 14px;">
+            <div class="builder-inputs">
+              <input type="text" id="pr-exo-name" placeholder="Exercice (ex: Développé couché)">
+              <div class="builder-sub-inputs">
+                <input type="number" id="pr-exo-weight" placeholder="Charge (kg)" step="0.5">
+                <button onclick="logUserPR()" class="action-add-btn">Ajouter</button>
+              </div>
+            </div>
+          </div>
+          <ul id="pr-history-list" class="styled-item-list" style="max-height: 140px; overflow-y: auto;"></ul>
+        </div>
+      </section>
+
+      <!-- ÉCRAN DÉDIÉ : Défi du Jour -->
+      <section id="challenge-screen" class="screen hidden">
+        <div class="screen-top-bar">
+          <button class="back-home-btn">← Accueil</button>
+          <span class="view-indicator">Défi du Jour</span>
+        </div>
+        <div class="modern-card" style="text-align: center; padding: 30px 20px;">
+          <span style="font-size: 40px;">🎯</span>
+          <h2 style="margin: 15px 0 10px 0;">Le Challenge PulseFit</h2>
+          <p id="daily-challenge-text" style="color: var(--text-secondary); font-size: 15px; margin-bottom: 24px; line-height: 1.5;"></p>
+          <button id="btn-complete-challenge" onclick="completeDailyChallenge()" class="btn-primary">Valider le défi du jour</button>
+        </div>
+      </section>
+
+      <!-- ÉCRAN : Catalogue -->
+      <section id="catalog-screen" class="screen hidden">
+        <div class="screen-top-bar">
+          <button class="back-home-btn">← Accueil</button>
+          <span class="view-indicator" id="catalog-count">0 séances</span>
+        </div>
+        
+        <div class="screen-heading">
+          <h2>Catalogue des séances</h2>
+          <p>Programmes complets avec durée et dépense calorique estimées.</p>
+        </div>
+
+        <div class="filter-section-label">Volume d'exercices</div>
+        <div class="filter-pill-group" id="filter-exo-count">
+          <button class="filter-pill active" data-exo-filter="all">Tous volumes</button>
+          <button class="filter-pill" data-exo-filter="express">Court (3-4 exos)</button>
+          <button class="filter-pill" data-exo-filter="medium">Moyen (5-6 exos)</button>
+          <button class="filter-pill" data-exo-filter="intense">Long (7-8 exos)</button>
+        </div>
+
+        <div class="filter-section-label">Lieu d'entraînement</div>
+        <div class="filter-pill-group" id="filter-location">
+          <button class="filter-pill active" data-filter="all">Tous lieux</button>
+          <button class="filter-pill" data-filter="salle">Salle</button>
+          <button class="filter-pill" data-filter="street">Street</button>
+          <button class="filter-pill" data-filter="maison">Maison</button>
+        </div>
+
+        <div id="catalog-grid" class="cards-stack"></div>
+      </section>
+
+      <!-- ÉCRAN : QCM Initial -->
+      <section id="quiz-screen" class="screen hidden">
+        <div class="screen-top-bar">
+          <button class="back-home-btn">← Annuler</button>
+          <span class="view-indicator" id="quiz-step-counter">Étape 1 / 4</span>
+        </div>
+
+        <div class="modern-card quiz-box">
+          <div class="quiz-track">
+            <div id="quiz-progress-bar" class="quiz-track-fill"></div>
+          </div>
+          <span class="quiz-tag">Diagnostic personnalisé</span>
+          <h2 id="quiz-question-title">Question...</h2>
+          
+          <div id="quiz-options-container" class="quiz-options-stack"></div>
+
+          <div id="quiz-slider-container" class="slider-step-box hidden">
+            <div class="slider-display">
+              <span id="slider-value-display" class="slider-number">5</span>
+              <span class="slider-unit">exercices</span>
+            </div>
+            <input type="range" id="exo-count-slider" min="3" max="10" value="5" step="1" class="custom-range">
+            <div class="slider-labels">
+              <span>3 (Express)</span>
+              <span>6 (Standard)</span>
+              <span>10 (Intensif)</span>
+            </div>
+            <button id="btn-submit-slider" class="btn-primary" style="margin-top: 24px;">Générer mon programme</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ÉCRAN : Créateur de séance -->
+      <section id="custom-screen" class="screen hidden">
+        <div class="screen-top-bar">
+          <button class="back-home-btn">← Accueil</button>
+          <span class="view-indicator">Mode Studio</span>
+        </div>
+
+        <div class="modern-card">
+          <div class="screen-heading">
+            <h2>Créer ma séance</h2>
+            <p>Assemble tes mouvements et définis tes volumes d'effort.</p>
+          </div>
+
+          <div class="form-stack">
+            <div class="field-box">
+              <label for="custom-title">Nom de la séance</label>
+              <input type="text" id="custom-title" placeholder="Ex. : Push lourd & Abdos">
+            </div>
+
+            <div class="builder-box">
+              <label>Ajouter un exercice</label>
+              <div class="builder-inputs">
+                <input type="text" id="custom-exo-name" placeholder="Nom du mouvement">
+                <div class="builder-sub-inputs">
+                  <input type="number" id="custom-exo-sets" placeholder="Séries (1-8)" min="1" max="8">
+                  <input type="text" id="custom-exo-reps" placeholder="Reps (ex. : 10-12)">
+                  <button id="add-exo-btn" class="action-add-btn">+</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="preview-block">
+              <label>Exercices enregistrés (<span id="custom-count">0</span>)</label>
+              <ul id="custom-preview-list" class="styled-item-list"></ul>
+            </div>
+
+            <button id="launch-custom-btn" class="btn-primary">Valider la séance</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ÉCRAN : Calculateur Nutrition BMR -->
+      <section id="nutrition-screen" class="screen hidden">
+        <div class="screen-top-bar">
+          <button class="back-home-btn">← Accueil</button>
+          <span class="view-indicator">Métabolisme</span>
+        </div>
+
+        <div class="modern-card">
+          <div class="screen-heading">
+            <h2>Calculateur de calories</h2>
+            <p>Estimation basée sur la formule Mifflin-St Jeor.</p>
+          </div>
+
+          <form id="nutrition-form" class="nutrition-form-grid">
+            <div class="form-group full-span">
+              <label>Sexe biologique</label>
+              <div class="segmented-control">
+                <label class="segment-option">
+                  <input type="radio" name="sexe" value="homme" checked>
+                  <span>Homme</span>
+                </label>
+                <label class="segment-option">
+                  <input type="radio" name="sexe" value="femme">
+                  <span>Femme</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="user-age">Âge (ans)</label>
+              <input type="number" id="user-age" value="24" min="14" max="95" required>
+            </div>
+
+            <div class="form-group">
+              <label for="user-weight">Poids (kg)</label>
+              <input type="number" id="user-weight" value="75" min="35" max="220" step="0.5" required>
+            </div>
+
+            <div class="form-group">
+              <label for="user-height">Taille (cm)</label>
+              <input type="number" id="user-height" value="180" min="120" max="230" required>
+            </div>
+
+            <div class="form-group">
+              <label for="user-steps">Pas moyens / jour</label>
+              <input type="number" id="user-steps" value="8500" min="1000" max="40000" step="500" required>
+            </div>
+
+            <button type="submit" class="btn-primary full-span">Calculer mes apports</button>
+          </form>
+
+          <div id="nutrition-results" class="nutrition-results-card hidden">
+            <span class="results-badge">Dépense énergétique estimée</span>
+            <div class="main-cal-display">
+              <span id="cal-maintien" class="cal-number">0</span>
+              <span class="cal-unit">kcal / jour</span>
+            </div>
+            <p class="results-note">Objectif automatiquement synchronisé avec ton journal.</p>
+
+            <div class="targets-dual-grid">
+              <div class="target-card deficit">
+                <span class="target-title">Déficit (Perte)</span>
+                <span id="cal-deficit" class="target-val">0</span>
+                <span class="target-sub">kcal / jour (-400)</span>
+              </div>
+              <div class="target-card surplus">
+                <span class="target-title">Surplus (Masse)</span>
+                <span id="cal-surplus" class="target-val">0</span>
+                <span class="target-sub">kcal / jour (+300)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ÉCRAN : Récapitulatif de séance -->
+      <section id="detail-screen" class="screen hidden">
+        <div class="screen-top-bar">
+          <button class="back-home-btn">← Retour</button>
+          <span class="view-indicator">Fiche séance</span>
+        </div>
+
+        <div class="modern-card">
+          <div class="detail-header-group">
+            <span id="detail-badge" class="session-category-badge">Salle</span>
+            <h2 id="detail-title">Titre de la séance</h2>
+            <p id="detail-desc" class="session-sub-desc"></p>
+            
+            <div class="detail-stats-row">
+              <span>⏳ <b id="detail-estimated-time">0 min</b></span>
+              <span>🔥 <b id="detail-calories">0</b> kcal</span>
+              <span>🏋️ <b id="detail-total-exos">0</b> exos</span>
+            </div>
+          </div>
+
+          <div class="timers-config-card">
+            <h4>Paramètres des chronomètres</h4>
+            <div class="timer-inputs-grid">
+              <div class="timer-input-item">
+                <label for="set-rest-input">Repos séries</label>
+                <div class="input-with-unit">
+                  <input type="number" id="set-rest-input" value="45" min="5" step="5">
+                  <span>sec</span>
+                </div>
+              </div>
+              <div class="timer-input-item">
+                <label for="exo-rest-input">Transition exos</label>
+                <div class="input-with-unit">
+                  <input type="number" id="exo-rest-input" value="90" min="10" step="5">
+                  <span>sec</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="workout-plan-preview">
+            <h4>Déroulement de l'entraînement</h4>
+            <ul id="detail-exercise-list" class="styled-item-list"></ul>
+          </div>
+
+          <button id="btn-start-guided-workout" class="btn-primary btn-pulse">
+            <span>Démarrer l'entraînement</span>
+            <span>⚡</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ÉCRAN : Entraînement guidé en direct -->
+      <section id="guided-screen" class="screen hidden">
+        <div class="guided-header-bar">
+          <div class="guided-session-meta">
+            <span id="live-progress-badge" class="step-chip">Exercice 1/4</span>
+          </div>
+          <button id="btn-quit-live" class="quit-session-btn">Quitter</button>
+        </div>
+
+        <div id="work-view" class="guided-stage-card">
+          <div class="stage-tag-badge work-badge">En cours d'exécution</div>
+          <h2 id="live-exo-name" class="live-movement-title">Mouvement</h2>
+          
+          <div class="live-metrics-box">
+            <div class="metric-block">
+              <span class="metric-label">Série</span>
+              <span id="live-set-info" class="metric-value">1 / 4</span>
+            </div>
+            <div class="metric-divider"></div>
+            <div class="metric-block">
+              <span class="metric-label">Cible</span>
+              <span id="live-reps-info" class="metric-value">10-12</span>
+            </div>
+          </div>
+
+          <button id="btn-finish-set" class="btn-primary btn-work-complete">
+            <span>Série validée</span>
+            <span>✓</span>
+          </button>
+        </div>
+
+        <div id="rest-view" class="guided-stage-card hidden">
+          <div class="rest-top-row">
+            <span class="stage-tag-badge rest-badge">Récupération active</span>
+            <div id="countdown-display" class="compact-timer">00:45</div>
+          </div>
+          
+          <h3 id="rest-message" class="rest-context-title">Repos avant la série suivante</h3>
+
+          <div class="rest-tabs-nav">
+            <button class="rest-tab-btn active" data-tab="quiz">🧠 Flash Quiz</button>
+            <button class="rest-tab-btn" data-tab="breath">🫁 Respiration</button>
+            <button class="rest-tab-btn" data-tab="game">🏓 Pong</button>
+          </div>
+
+          <div id="rest-quiz-panel" class="rest-panel">
+            <div class="mini-quiz-card">
+              <p id="mini-quiz-q" class="mini-quiz-question">Question du quiz...</p>
+              <div id="mini-quiz-options" class="mini-quiz-options-grid"></div>
+              <p id="mini-quiz-feedback" class="mini-quiz-feedback hidden"></p>
+            </div>
+          </div>
+
+          <div id="rest-breath-panel" class="rest-panel hidden">
+            <div class="breath-container">
+              <div id="breath-circle" class="breath-circle"></div>
+              <span id="breath-text" class="breath-state-text">Inspirez...</span>
+            </div>
+          </div>
+
+          <div id="rest-game-panel" class="rest-panel hidden">
+            <div class="pong-container">
+              <canvas id="pong-canvas" width="300" height="180"></canvas>
+              <div class="pong-score-bar">
+                <span>Toi : <b id="pong-p1-score">0</b></span>
+                <span>Bot : <b id="pong-bot-score">0</b></span>
+              </div>
+              <p class="pong-instructions">Touche ou glisse ton doigt pour déplacer ta raquette</p>
+            </div>
+          </div>
+
+          <div class="next-up-card">
+            <span class="next-up-tag">À suivre :</span>
+            <p id="next-preview" class="next-up-name"></p>
+          </div>
+
+          <button id="btn-skip-rest" class="btn-secondary">Passer le repos ⏭</button>
+        </div>
+
+        <div id="finished-view" class="guided-stage-card hidden">
+          <div class="celebration-badge">🏆</div>
+          <h2 class="finish-title">Séance accomplie !</h2>
+          <p id="finished-cal-text" class="finish-subtitle">Excellente intensité sur tout le parcours.</p>
+          <button id="btn-finish-home" class="btn-primary">Retour au tableau de bord</button>
+        </div>
+      </section>
+    </main>
+
+    <!-- WIDGET FLOTTANT LECTEUR AUDIO -->
+    <div id="music-player-widget" class="music-floating-widget">
+      <div class="music-widget-bar">
+        <button id="btn-expand-player" class="music-disc-btn" title="Ouvrir le lecteur">
+          <span id="music-disc-icon" class="disc-icon">💿</span>
+        </button>
+        <div class="music-track-snippet" id="btn-toggle-snippet">
+          <span id="player-current-title" class="track-title-text">Chargement audio...</span>
+          <span id="player-current-genre" class="track-genre-text">Playlist PulseFit</span>
+        </div>
+        <div class="music-quick-controls">
+          <button id="btn-play-pause" class="mini-control-btn" title="Play/Pause">▶</button>
+          <button id="btn-next-track" class="mini-control-btn" title="Piste suivante">⏭</button>
+        </div>
+      </div>
+
+      <div id="music-expanded-panel" class="music-expanded-panel hidden">
+        <div class="panel-header">
+          <span>Mix Audio Sport (Libre de droits)</span>
+          <button id="btn-close-music-panel" class="close-panel-btn">✕</button>
+        </div>
+
+        <div class="genre-selector">
+          <button class="genre-pill active" data-genre="phonk">⚡ Phonk</button>
+          <button class="genre-pill" data-genre="house">🪩 House / Pop</button>
+          <button class="genre-pill" data-genre="ambiance">🌊 Ambiance</button>
+        </div>
+
+        <div class="volume-slider-row">
+          <span class="vol-icon">🔉</span>
+          <input type="range" id="music-volume" min="0" max="1" step="0.05" value="0.7" class="custom-range vol-range">
+          <span class="vol-icon">🔊</span>
+        </div>
+
+        <div class="track-list-scroll" id="track-list-container"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS MODULAIRES -->
+  <script src="database.js"></script>
+  <script src="features.js"></script>
+  <script src="audio-game.js"></script>
+  <script src="script.js"></script>
+
+  <!-- Script d'enregistrement du Service Worker pour la PWA -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(() => console.log("Service Worker enregistré avec succès !"))
+          .catch((err) => console.log("Erreur Service Worker :", err));
+      });
+    }
+  </script>
+</body>
+</html>
